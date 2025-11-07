@@ -4,6 +4,7 @@ from ..database import get_session
 from ..models import Users
 from ..schemas import UserBase, UserIn
 from ..utils import get_password_hash
+from ..oauth2 import get_current_user
 
 router = APIRouter(
     prefix = "/users",
@@ -22,8 +23,9 @@ def create_user(payload: UserIn, db: Session = Depends(get_session)):
     return user
 
 @router.get("/{id}", status_code=status.HTTP_200_OK, response_model=UserBase)
-def get_user(id: int, db: Session = Depends(get_session)):
+def get_user(id: int, db: Session = Depends(get_session), current_user: str = Depends(get_current_user)):
     user = db.get(Users, id)
     if not user:
         raise HTTPException(status_code=404, detail=f"User {id} was not found")
+    print("Current user:", current_user)
     return user

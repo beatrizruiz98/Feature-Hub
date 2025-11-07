@@ -7,6 +7,10 @@ from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta, timezone
 
 from .schemas import TokenData
+from .database import get_session
+from .models import Users
+
+from sqlmodel import Session, select
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login") # Refering login endpoint
 
@@ -31,18 +35,29 @@ def verify_access_token(token: str, credentials_exception):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         id: str = payload.get("user_id")
+        
         if id is None:
             raise credentials_exception
-        token_data = TokenData(id=id)
+        token_data = TokenData(id=str(id))
+        
     except InvalidTokenError:
         raise credentials_exception
     
     return token_data
 
-def get_current_user(token: str = Depends(oauth2_scheme)):
+# Si envio una petición sin Authorization header en aquellos endpoints que tienen un Depends en get_current_user 
+# lanza un 401 "detail": "Not authenticated" generado de manera automática por FastAPI de la funcion OAuth2PasswordBearer
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_session)):
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    return verify_access_token(token, credentials_exception)
+   
+   # Esto devuelve el token data (user id) definido en verify_user o lanza excepción) 
+    token = verify_access_token(token, credentials_exception) 
+    # Se usa token.id por el schema TokenData
+    user = db.exec(select(Users).where(Users.id == token.id)).first()
+    
+    return user.email

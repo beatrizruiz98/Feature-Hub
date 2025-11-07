@@ -16,12 +16,13 @@ def login_user(payload: OAuth2PasswordRequestForm = Depends(), db: Session = Dep
     
     # OAuth2PasswordRequestForm tiene "username" y "password", no email, tenemos que modificarlo aunque username = email usuario a efectos prácticos
     # Esta request se hace desde form-data
-    
     user = db.exec(select(Users).where(Users.email == payload.username)).first()
+    # Si no existe el usuario 
     if not user:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=403, detail="Invalid credentials")
+    # Verificar la contraseña 
     if verify(payload.password, user.password) == False:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=403, detail="Invalid credentials")
     else:
         access_token = create_access_token(data={"user_id": user.id})
         return {"access_token": access_token}

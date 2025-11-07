@@ -3,6 +3,7 @@ from sqlmodel import Session, select
 from ..schemas import PostIn, PostBase
 from ..database import get_session
 from ..models import Posts
+from ..oauth2 import get_current_user
 
 router = APIRouter(
     prefix = "/posts",
@@ -17,7 +18,7 @@ def get_posts(db: Session = Depends(get_session)):
     return posts
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=PostIn)
-def create_post(payload: PostIn, db: Session = Depends(get_session)):
+def create_post(payload: PostIn, db: Session = Depends(get_session), current_user: str = Depends(get_current_user)):
     # cursor.execute(
     #     "INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING *",
     #     (post.title, post.content, post.published),
@@ -31,7 +32,7 @@ def create_post(payload: PostIn, db: Session = Depends(get_session)):
     return new_post
 
 @router.get("/{id}", status_code=status.HTTP_200_OK, response_model=PostIn)
-def get_a_post(id: int, db: Session = Depends(get_session)):
+def get_a_post(id: int, db: Session = Depends(get_session), current_user: str = Depends(get_current_user)):
     # cursor.execute("SELECT * FROM posts WHERE id = %s", (id,))
     # post = cursor.fetchone()
     post = db.get(Posts, id)
@@ -40,7 +41,7 @@ def get_a_post(id: int, db: Session = Depends(get_session)):
     return post
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int, db: Session = Depends(get_session)):
+def delete_post(id: int, db: Session = Depends(get_session), current_user: str = Depends(get_current_user)):
     # cursor.execute("DELETE FROM posts WHERE id = %s RETURNING *", (id,))
     # deleted = cursor.fetchone()
     post = db.get(Posts, id)
@@ -52,7 +53,7 @@ def delete_post(id: int, db: Session = Depends(get_session)):
     return
 
 @router.put("/{id}", status_code=status.HTTP_200_OK, response_model=PostBase)
-def update_post(id: int, payload: PostIn, db: Session = Depends(get_session)):
+def update_post(id: int, payload: PostIn, db: Session = Depends(get_session), current_user: str = Depends(get_current_user)):
     # cursor.execute(
     #     "UPDATE posts SET title = %s, content = %s, published = %s WHERE id = %s RETURNING *",
     #     (post.title, post.content, post.published, id),
