@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, conint
 from typing import Optional
 from datetime import datetime
 
@@ -10,6 +10,10 @@ class UserBase(BaseModel):
 class UserIn(UserBase):
     password: str
 
+class Vote(BaseModel):
+    post_id: int
+    dir: conint(ge=0, le=1)  # 1 for upvote, 0 for remove vote
+
 class PostBase(BaseModel):
     title: str
     content: str
@@ -18,12 +22,15 @@ class PostBase(BaseModel):
 class PostCreate(PostBase):
     created_at: Optional[datetime] = None
     id: Optional[int] = None
-    pass
 
 class PostOut(PostBase):
     id: Optional[int] = None
     created_at: Optional[datetime] = None
     user: UserBase = None
+
+class PostsWithVotes(BaseModel):
+    Posts: PostOut
+    votes: int 
 
 class Token(BaseModel):
     token_type: str = "Bearer"
@@ -31,4 +38,5 @@ class Token(BaseModel):
     
 class TokenData(BaseModel):
     id: Optional[str] = None
+    
 
