@@ -37,6 +37,7 @@ def get_a_post(id: int,
         raise HTTPException(status_code=404, detail=f"Post {id} was not found")
     if post.Posts.user_id != int(current_user):
         raise HTTPException(status_code=403, detail="Not authorized to perform requested action")
+    print(post)
     return post
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=PostCreate)
