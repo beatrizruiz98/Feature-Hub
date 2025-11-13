@@ -1,7 +1,6 @@
-# FastAPI Project
+# Feature Hub Project
 
-API REST para **gestionar posts, usuarios y votos**, construida con **FastAPI + SQLModel**, **JWT**, **PostgreSQL** y **Alembic**.  
-Sirve como plantilla base para desarrollar APIs modernas, seguras y fácilmente extensibles.
+Plataforma para **proponer funcionalidades (“features”), discutir (comentarios) y priorizar (votos).** Con roles básicos y ciclo de vida de la feature. Construida con **FastAPI + SQLModel**, **JWT**, **PostgreSQL** y **Alembic**. 
 
 ---
 
@@ -34,10 +33,7 @@ pip install -r requirements.txt
 Crea un archivo **.env** en la raíz del proyecto:
 
 ```env
-DATABASE_URL=postgresql://user:password@localhost:5432/dbname
-SECRET_KEY=change_me
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=60
+COMPLETAR
 ```
 
 ### Migraciones y arranque
@@ -85,6 +81,7 @@ requirements.txt
 ---
 
 ## Endpoints principales
+MODIFICAR
 
 | Método | Ruta           | Descripción             | Auth |
 |:-----:|-----------------|-------------------------|:----:|
