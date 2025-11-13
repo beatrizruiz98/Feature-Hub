@@ -18,7 +18,7 @@ class UserCreate(UserBase):
     password: str
     
 
-class Vote(BaseModel):
+class Like(BaseModel):
     """Modelo para indicar si se crea o elimina un voto sobre un Feature."""
 
     feature_id: int
@@ -32,28 +32,33 @@ class FeatureBase(BaseModel):
     description: str
     published: Optional[bool] = True
 
+class FeatureUpdate(BaseModel):
+    """Campos básicos que definen el contenido de un feature."""
 
-class FeatureCreate(FeatureBase):
-    """Respuesta tras crear un feature, incluyendo metadata adicional."""
-    
-    id: Optional[int] = None
-    created_at: Optional[datetime] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    published: Optional[bool] = True
 
-
-class FeatureUpdated(FeatureBase):
+class FeatureOut(FeatureBase):
     """Feature que se devuelve la información actualizada, enriquecido con información del autor."""
 
     id: Optional[int] = None
-    user: UserBase = None
+    user_id: int
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
+class FeatureSummary(BaseModel):
+    id: int
+    title: str
+    description: str
+    published: bool
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+    likes: int
 
-class FeatureOut(BaseModel):
-    """Estructura combinada para devolver feature + recuento de votos."""
-
-    features: FeatureUpdated
-    votes: int
+class FeatureCollection(BaseModel):
+    meta: dict
+    data: list[FeatureSummary]
 
 
 class Token(BaseModel):

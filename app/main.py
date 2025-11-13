@@ -32,7 +32,7 @@ app.add_middleware(
 )
 
 # Registro modular de cada conjunto de endpoints.
-#app.include_router(features.router)
+app.include_router(features.router)
 app.include_router(auth.router)
 #app.include_router(votes.router)
 

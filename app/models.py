@@ -16,7 +16,7 @@ class Features(SQLModel, table=True):
     user_id: int = Field(sa_column=Column(Integer, ForeignKey(
         "users.id", ondelete="CASCADE"), nullable=False))
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(nullable=False)
+    updated_at: datetime = Field(nullable=True)
 
 
 class Users(SQLModel, table=True):
@@ -28,7 +28,7 @@ class Users(SQLModel, table=True):
     password: str = Field(nullable=False)
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
-class Votes(SQLModel, table=True):
+class Likes(SQLModel, table=True):
     """Tabla intermedia que relaciona usuarios con features votados."""
 
     user_id: int = Field(
