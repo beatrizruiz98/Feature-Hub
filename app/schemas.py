@@ -6,59 +6,53 @@ from pydantic import BaseModel, EmailStr, conint
 
 class UserBase(BaseModel):
     """Campos comunes compartidos por varias respuestas relacionadas con usuarios."""
-
+    
     id: Optional[int] = None
+    name: str
     email: EmailStr
     created_at: Optional[datetime] = None
 
 
-class UserIn(UserBase):
+class UserCreate(UserBase):
     """Payload esperado cuando se crea un usuario a través de la API."""
-
     password: str
-    phone_number: Optional[str] = None
-
-
-class UserOut(UserBase):
-    """Información pública que se expone al consultar un usuario."""
-
-    phone_number: Optional[str] = None
-
+    
 
 class Vote(BaseModel):
-    """Modelo para indicar si se crea o elimina un voto sobre un post."""
+    """Modelo para indicar si se crea o elimina un voto sobre un Feature."""
 
-    post_id: int
+    feature_id: int
     dir: conint(ge=0, le=1)  # 1 for upvote, 0 for remove vote
 
 
-class PostBase(BaseModel):
-    """Campos básicos que definen el contenido de un post."""
+class FeatureBase(BaseModel):
+    """Campos básicos que definen el contenido de un feature."""
 
     title: str
-    content: str
+    description: str
     published: Optional[bool] = True
 
 
-class PostCreate(PostBase):
-    """Respuesta tras crear un post, incluyendo metadata adicional."""
-
-    created_at: Optional[datetime] = None
-    id: Optional[int] = None
-
-
-class PostOut(PostBase):
-    """Post que se devuelve en consultas, enriquecido con información del autor."""
-
+class FeatureCreate(FeatureBase):
+    """Respuesta tras crear un feature, incluyendo metadata adicional."""
+    
     id: Optional[int] = None
     created_at: Optional[datetime] = None
+
+
+class FeatureUpdated(FeatureBase):
+    """Feature que se devuelve la información actualizada, enriquecido con información del autor."""
+
+    id: Optional[int] = None
     user: UserBase = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
 
-class PostsWithVotes(BaseModel):
-    """Estructura combinada para devolver post + recuento de votos."""
+class FeatureOut(BaseModel):
+    """Estructura combinada para devolver feature + recuento de votos."""
 
-    Posts: PostOut
+    features: FeatureUpdated
     votes: int
 
 
@@ -73,3 +67,17 @@ class TokenData(BaseModel):
     """Datos mínimos almacenados dentro del JWT (por ahora sólo el user_id)."""
 
     id: Optional[str] = None
+    
+    
+class CommentCreate(BaseModel):
+    """Datos para crear un comentario.""" 
+
+    feature_id: int
+    body: str 
+
+class CommentOut(CommentCreate):
+    """Datos para devolver de un comentario.""" 
+   
+    id: Optional[int] = None
+    user: UserBase = None
+    created_at: Optional[datetime] = None
