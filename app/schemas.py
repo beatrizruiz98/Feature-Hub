@@ -7,7 +7,6 @@ from pydantic import BaseModel, EmailStr, conint
 class UserBase(BaseModel):
     """Campos comunes compartidos por varias respuestas relacionadas con usuarios."""
     
-    id: Optional[int] = None
     name: str
     email: EmailStr
     created_at: Optional[datetime] = None
@@ -15,6 +14,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     """Payload esperado cuando se crea un usuario a través de la API."""
+    id: Optional[int] = None
     password: str
     
 

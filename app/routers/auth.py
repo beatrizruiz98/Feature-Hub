@@ -4,12 +4,25 @@ from sqlmodel import Session, select
 
 from ..database import get_session
 from ..models import Users
-from ..oauth2 import create_access_token
-from ..schemas import Token
-from ..utils import verify
+from ..oauth2 import create_access_token, get_current_user
+from ..utils import verify, get_password_hash
+from ..schemas import UserBase, UserCreate, Token
 
 # Router encargado de la autenticación basada en username/password -> JWT.
-router = APIRouter(tags=["Authentication"])
+router = APIRouter(tags=["Authentication"],
+                   prefix="/auth")
+
+@router.post("/register", status_code=status.HTTP_201_CREATED, response_model=UserBase)
+def register_user(payload: UserCreate, db: Session = Depends(get_session)):
+    """Registra un usuario nuevo tras validar email y almacenar la contraseña cifrada."""
+    payload.password = get_password_hash(payload.password)
+    user = Users(**payload.model_dump())
+    if db.exec(select(Users).where(Users.email == user.email)).first():
+        raise HTTPException(status_code=409, detail="Email already registered")
+    db.add(user, id)
+    db.commit()
+    db.refresh(user)
+    return user
 
 
 @router.post("/login", status_code=status.HTTP_201_CREATED, response_model=Token)
@@ -27,3 +40,12 @@ def login_user(payload: OAuth2PasswordRequestForm = Depends(), db: Session = Dep
     else:
         access_token = create_access_token(data={"user_id": user.id})
         return {"access_token": access_token}
+
+@router.get("/me", status_code=status.HTTP_200_OK, response_model=UserBase)
+def get_user(current_user: str = Depends(get_current_user),
+             db: Session = Depends(get_session)):
+    """Devuelve la información del usuario; requiere autenticación."""
+    user = db.get(Users, int(current_user))
+    if not user:
+        raise HTTPException(status_code=404, detail=f"User not authenticated")
+    return user

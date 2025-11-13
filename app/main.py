@@ -4,14 +4,14 @@ from sqlmodel import SQLModel
 
 from .config import settings  # Mantiene la configuración disponible en todo el módulo.
 from .database import engine
-from .routers import posts, users, auth, votes
+from .routers import features, auth, votes
 
 # Crear automáticamente las tablas definidas en models al iniciar la app (útil en desarrollo).
 SQLModel.metadata.create_all(engine)
 
 # Instancia principal de FastAPI exportada al servidor ASGI.
 app = FastAPI(
-    title="FastAPI Project",
+    title="Feature Hub API",
     description="API built with FastAPI and SQLModel",
     version="1.0.0",
 )
@@ -32,10 +32,9 @@ app.add_middleware(
 )
 
 # Registro modular de cada conjunto de endpoints.
-app.include_router(posts.router)
-app.include_router(users.router)
+#app.include_router(features.router)
 app.include_router(auth.router)
-app.include_router(votes.router)
+#app.include_router(votes.router)
 
 
 @app.get("/")
