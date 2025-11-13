@@ -1,6 +1,6 @@
 # Feature Hub Project
 
-Plataforma para **proponer funcionalidades (“features”), discutir (comentarios) y priorizar (votos).** Con roles básicos y ciclo de vida de la feature. Construida con **FastAPI + SQLModel**, **JWT**, **PostgreSQL** y **Alembic**. 
+Plataforma para **proponer funcionalidades para un proyecto (“features”), discutir (comentarios) y priorizarlos (likes).** Con roles básicos y ciclo de vida de la feature. Construida con **FastAPI + SQLModel**, **JWT**, **PostgreSQL** y **Alembic**. 
 
 ---
 
