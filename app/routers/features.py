@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, func, select
-from sqlalchemy import or_, and_
+from sqlalchemy import or_
 from datetime import datetime
 from typing import Optional
 
 from ..database import get_session
-from ..models import Features, Likes
+from ..models import Features, Likes, Comments
 from ..oauth2 import get_current_user
-from ..schemas import FeatureBase, FeatureUpdate, FeatureOut, FeatureCollection, FeatureSummary
+from ..schemas import FeatureBase, FeatureUpdate, FeatureOut, FeatureCollection, FeatureSummary, CommentCollection
 
 # Router dedicado a todo el CRUD de features más el agregado de votos.
 router = APIRouter(
@@ -23,18 +23,19 @@ def get_features(db: Session = Depends(get_session),
                 skip: int = 0,
                 search: str = "",
                 user_id: Optional[str] = None,
-                owner: Optional[str] = None):
+                owner: Optional[bool] = False):
     
     """Lista los features aplicando paginación, filtro por título/descripción, usuario y conteo de votos."""
-    
+    if current_user is None:
+        raise HTTPException(status_code=401, detail="Invalid token payload")
+
     query = (
         select(Features, func.count(Likes.user_id).label("likes"))
         .join(Likes, Likes.feature_id == Features.id, isouter=True)
         .limit(limit)
         .offset(skip)
         .group_by(Features.id)
-        .order_by((func.count(Likes.user_id)).desc())
-        .order_by(Features.id.desc())
+        .order_by((func.count(Likes.user_id)).desc(), Features.id.desc())
         )
     
     if search:
@@ -46,7 +47,7 @@ def get_features(db: Session = Depends(get_session),
             )
         )
        
-    if owner == "me":
+    if owner == True:
         query = query.where(Features.user_id == current_user)
     elif user_id is not None:
         query = query.where(Features.user_id == user_id)
@@ -55,16 +56,16 @@ def get_features(db: Session = Depends(get_session),
 
     data = [
         {
-            "id": field.Features.id,
-            "user_id": field.Features.user_id,
-            "title": field.Features.title,
-            "description": field.Features.description,
-            "published": field.Features.published,
-            "created_at": field.Features.created_at,
-            "updated_at": field.Features.updated_at,
-            "likes": field.likes,
+            "id": f.Features.id,
+            "user_id": f.Features.user_id,
+            "title": f.Features.title,
+            "description": f.Features.description,
+            "published": f.Features.published,
+            "created_at": f.Features.created_at,
+            "updated_at": f.Features.updated_at,
+            "likes": f.likes,
         }
-        for field in features
+        for f in features
     ]
     return {
         "meta": {"total": len(data), "limit": limit, "skip": skip},
@@ -77,6 +78,9 @@ def get_feature(id: int,
                db: Session = Depends(get_session),
                current_user: str = Depends(get_current_user)):
     """Devuelve un feature específico, verificando que pertenezca al usuario autenticado."""
+    if current_user is None:
+        raise HTTPException(status_code=401, detail="Invalid token payload")
+    
     feature = db.exec(
         select(Features, func.count(Likes.user_id).label("likes"))
         .join(Likes, Likes.feature_id == Features.id, isouter=True)
@@ -89,20 +93,17 @@ def get_feature(id: int,
     if feature.Features.user_id != int(current_user):
         raise HTTPException(status_code=403, detail="Not authorized to perform requested action")
 
-    print(feature)
-    return {
-        "id": feature.Features.id,
-        "user_id": feature.Features.user_id,
-        "title": feature.Features.title,
-        "description": feature.Features.description,
-        "published": feature.Features.published,
-        "created_at": feature.Features.created_at,
-        "updated_at": feature.Features.updated_at,
-        "likes": feature.likes,
-    }
-
-    return data
-
+    return FeatureSummary(
+        id=feature.Features.id,
+        user_id=feature.Features.user_id,
+        title=feature.Features.title,
+        description=feature.Features.description,
+        published=feature.Features.published,
+        created_at=feature.Features.created_at,
+        updated_at=feature.Features.updated_at,
+        likes=feature.likes
+)
+    
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=FeatureBase)
 def create_feature(payload: FeatureBase,
                 db: Session = Depends(get_session),
@@ -123,6 +124,8 @@ def update_feature(id: int,
                 db: Session = Depends(get_session),
                 current_user: str = Depends(get_current_user)):
     """Permite editar un feature siempre que sea propiedad del usuario autenticado."""
+    if current_user is None:
+        raise HTTPException(status_code=401, detail="Invalid token payload")
     feature = db.get(Features, id)
     if not feature:
         raise HTTPException(status_code=404, detail=f"Feature {id} was not found")
@@ -154,3 +157,36 @@ def delete_feature(id: int,
     db.delete(feature)
     db.commit()
     return
+
+@router.get("/{id}/comments", status_code=status.HTTP_200_OK, response_model=CommentCollection)
+def get_comments(id: int,
+                db: Session = Depends(get_session),
+                current_user: str = Depends(get_current_user)):
+
+    if current_user is None:
+        raise HTTPException(status_code=401, detail="Invalid token payload")
+
+    feature = db.get(Features, id)
+    if not feature:
+        raise HTTPException(status_code=404, detail=f"Feature {id} was not found")
+    if feature.user_id != int(current_user):
+        raise HTTPException(status_code=403, detail="Not authorized to perform requested action")
+
+    comments = db.exec(select(Comments)
+                               .where(Comments.feature_id == id)
+                               .order_by((Comments.created_at).desc())).all()
+    
+    data = [
+        {
+            "id": c.id,
+            "user_id": c.user_id,
+            "body": c.body,
+            "created_at": c.created_at
+        }
+        for c in comments
+    ]
+    print(data)
+    return {
+        "meta": {"total": len(data)},
+        "data": data
+        }
