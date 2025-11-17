@@ -1,20 +1,20 @@
+"""Helpers para emitir y validar tokens JWT utilizados por la API."""
+from datetime import datetime, timedelta, timezone
+
 import jwt
 from jwt.exceptions import InvalidTokenError
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-
-from datetime import datetime, timedelta, timezone
+from sqlmodel import Session, select
 
 from .schemas import TokenData
 from .database import get_session
 from .models import Users
 from .config import settings
 
-from sqlmodel import Session, select
-
 # Extrae y valida automáticamente el header Authorization: Bearer <token>.
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")  # Refering login endpoint
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 # Parámetros necesarios para firmar y validar los JWT emitidos por la API.
 SECRET_KEY = settings.secret_key   # Generate by openssl rand -hex 32
@@ -53,8 +53,8 @@ def verify_access_token(token: str, credentials_exception):
     return token_data
 
 
-# Si envio una petición sin Authorization header en aquellos endpoints que tienen un Depends en get_current_user
-# lanza un 401 "detail": "Not authenticated" generado de manera automática por FastAPI de la funcion OAuth2PasswordBearer
+# Si se envía una petición sin Authorization header en los endpoints que dependen de esta función,
+# FastAPI lanza automáticamente un 401 con detalle "Not authenticated".
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_session)):
     """Dependencia reutilizable para obtener el id del usuario autenticado."""
     credentials_exception = HTTPException(

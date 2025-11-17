@@ -1,19 +1,29 @@
+"""Punto de entrada de la aplicación FastAPI: configura CORS, routers y metadatos de OpenAPI."""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlmodel import SQLModel
 
 from .config import settings  # Mantiene la configuración disponible en todo el módulo.
 from .database import engine
-from .routers import features, auth, likes, comments
+from .routers import auth, comments, features, likes
 
 # Crear automáticamente las tablas definidas en models al iniciar la app (útil en desarrollo).
-SQLModel.metadata.create_all(engine)
+# from sqlmodel import SQLModel
+# SQLModel.metadata.create_all(engine)
+
+tags_metadata = [
+    {"name": "Authentication", "description": "Registro, login y perfil del usuario autenticado."},
+    {"name": "Features", "description": "CRUD de features, métricas de likes y comentarios asociados."},
+    {"name": "Likes", "description": "Operaciones para votar o retirar votos sobre un feature."},
+    {"name": "Comments", "description": "Gestión individual de comentarios creados por los usuarios."},
+    {"name": "Health", "description": "Utilidades de supervisión para confirmar la disponibilidad del servicio."},
+]
 
 # Instancia principal de FastAPI exportada al servidor ASGI.
 app = FastAPI(
     title="Feature Hub API",
-    description="API built with FastAPI and SQLModel",
+    description="API construida con FastAPI y SQLModel para priorizar funcionalidades con likes y comentarios.",
     version="1.0.0",
+    openapi_tags=tags_metadata,
 )
 
 # Fuentes permitidas para peticiones provenientes de navegadores.
@@ -39,7 +49,12 @@ app.include_router(likes.router)
 app.include_router(comments.router)
 
 
-@app.get("/")
+@app.get(
+    "/",
+    summary="Ping",
+    description="Endpoint de salud sencillo para comprobar que el servicio está vivo.",
+    tags=["Health"],
+)
 def root():
     """Endpoint de salud sencillo para comprobar que el servicio está vivo."""
-    return {"Hello": "World"}
+    return {"ok"}
