@@ -226,8 +226,6 @@ def get_comments(
     feature = db.get(Features, id)
     if not feature:
         raise HTTPException(status_code=404, detail=f"Feature {id} was not found")
-    if feature.user_id != int(current_user):
-        raise HTTPException(status_code=403, detail="Not authorized to perform requested action")
 
     comments = db.exec(select(Comments)
                                .where(Comments.feature_id == id)
