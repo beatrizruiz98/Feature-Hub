@@ -132,15 +132,6 @@ alembic downgrade -1        # revierte la última migración
 
 ---
 
-## Próximos pasos 
-
-- Añadir **tests automáticos** (pytest + HTTPX) para los routers principales.
-- Publicar imágenes Docker (app + DB) para despliegue homogéneo.
-- Documentar ejemplos de peticiones en `docs/` con `httpie` o `curl`.
-- Agregar seeds para ambientes demo (usuarios iniciales y features de prueba).
-
----
-
 ## Troubleshooting
 
 | Problema | Causa probable | Solución |

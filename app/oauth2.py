@@ -14,6 +14,7 @@ from .models import Users
 from .config import settings
 
 # Extrae y valida automáticamente el header Authorization: Bearer <token>.
+# Especifica la URL donde el cliente (como un frontend o la propia interfaz de usuario de Swagger UI) debe enviar el nombre de usuario y la contraseña para obtener un token. 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 # Parámetros necesarios para firmar y validar los JWT emitidos por la API.
@@ -54,7 +55,8 @@ def verify_access_token(token: str, credentials_exception):
 
 
 # Si se envía una petición sin Authorization header en los endpoints que dependen de esta función,
-# FastAPI lanza automáticamente un 401 con detalle "Not authenticated".
+# Cuando se usa como una dependencia (Depends(oauth2_scheme)) en una ruta, extrae automáticamente el valor del token de dicho encabezado 
+# o devuelve un error 401 (Unauthorized) si el encabezado no está presente o tiene un formato incorrecto.
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_session)):
     """Dependencia reutilizable para obtener el id del usuario autenticado."""
     credentials_exception = HTTPException(
@@ -63,7 +65,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    # Esto devuelve el token data (user id) definido en verify_user o lanza excepción)
+    # Esto devuelve el token data (user id) definido en verify_acces_token o lanza excepción)
     token = verify_access_token(token, credentials_exception)
     # Se usa token.id por el schema TokenData
     user = db.exec(select(Users).where(Users.id == token.id)).first()
