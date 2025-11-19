@@ -1,0 +1,16 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000" # <port_local>:<port_container>
+  # db:
+  #   image: postgres
+  #   restart: always
+  #   environment:
+  #     POSTGRES_PASSWORD: database_password 
+  # adminer:
+  #   image: adminer
+  #   restart: always
+  #   ports:
+  #     - 8001:8080
+
