@@ -57,4 +57,4 @@ app.include_router(comments.router)
 )
 def root():
     """Endpoint de salud sencillo para comprobar que el servicio está vivo."""
-    return {"ok"}
+    return {"Server status": "Alive"}

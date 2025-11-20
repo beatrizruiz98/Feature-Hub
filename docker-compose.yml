@@ -1,10 +1,16 @@
 services:
   api:
     build: .
+    volumes:
+      - .:/usr/src/app:ro
+    restart: always
+    depends_on:
+      - db
     env_file: 
     - ".env"
     ports:
       - "8000:8000" # <port_local>:<port_container>
+    command: fastapi dev --host 0.0.0.0 --port 8000
   db:
     image: postgres:16 # Añadir version para evitar problemas de compatibilidad
     restart: always
