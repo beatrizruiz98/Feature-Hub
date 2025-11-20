@@ -7,8 +7,8 @@ from .database import engine
 from .routers import auth, comments, features, likes
 
 # Crear automáticamente las tablas definidas en models al iniciar la app (útil en desarrollo).
-# from sqlmodel import SQLModel
-# SQLModel.metadata.create_all(engine)
+from sqlmodel import SQLModel
+SQLModel.metadata.create_all(engine)
 
 tags_metadata = [
     {"name": "Authentication", "description": "Registro, login y perfil del usuario autenticado."},
