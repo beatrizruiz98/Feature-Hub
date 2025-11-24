@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Feature Hub · Frontend</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <div class="brand">
+        <div class="logo-dot"></div>
+        <div class="brand-text">
+          <div class="brand-title">Feature Hub</div>
+          <div class="brand-sub" data-i18n="brand_sub">
+            Lightweight UI for your FastAPI backend
+          </div>
+        </div>
+      </div>
+      <div class="header-right">
+        <select id="lang-switch" class="lang-switch">
+          <option value="en">EN</option>
+          <option value="es">ES</option>
+        </select>
+        <div class="pill">
+          <div class="status-dot"></div>
+          <span id="auth-status" data-i18n="status_signed_out">
+            Not signed in
+          </span>
+        </div>
+        <button
+          id="logout-btn"
+          class="btn-secondary"
+          style="display:none;"
+          data-i18n="logout_btn"
+        >
+          Log out
+        </button>
+      </div>
+    </header>
+
+    <!-- <div class="info-bar">
+      <div class="helper-text" data-i18n="info_bar_text">
+        This UI is wired to your API (/auth/*, /features, /likes, /comments).
+        If the API is down, demo data will be shown.
+      </div>
+      <label class="badge-demo">
+        <input type="checkbox" id="demo-toggle" checked />
+        <span data-i18n="demo_toggle">Demo data</span>
+      </label>
+    </div> -->
+
+    <!-- Tabs (solo visual, el contenido real está en los paneles) -->
+    <section
+      class="panel"
+      style="grid-column: 1 / -1; display:flex; justify-content:space-between; align-items:center; gap:10px;"
+    >
+      <div class="tabs-main">
+        <button
+          class="tab-main active"
+          data-main-tab="feed"
+          data-i18n="tab_feed"
+        >
+          Feed
+        </button>
+        <button
+          class="tab-main"
+          data-main-tab="myspace"
+          data-i18n="tab_myspace"
+        >
+          My space
+        </button>
+      </div>
+    </section>
+
+    <main>
+      <!-- LEFT: Feed -->
+      <section class="panel panel--feed" id="feed-panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title" data-i18n="features_title">Features</div>
+            <div class="panel-subtitle" data-i18n="features_subtitle">
+              Home feed from GET /features
+            </div>
+          </div>
+          <button
+            id="refresh-features-btn"
+            class="btn-secondary"
+            data-i18n="refresh_btn"
+          >
+            Refresh
+          </button>
+        </div>
+
+        <div class="controls-row">
+          <div class="field">
+            <label for="search-input" data-i18n="search_label">
+              Search (title & description)
+            </label>
+            <input
+              id="search-input"
+              type="text"
+              placeholder="Search features"
+              data-i18n-placeholder="search_placeholder"
+            />
+          </div>
+          <div class="field" style="max-width:160px;">
+            <label for="owner-filter" data-i18n="owner_label">Owner</label>
+            <select id="owner-filter">
+              <option value="all" data-i18n="owner_all">All</option>
+              <option value="me" data-i18n="owner_me">Mine</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="feature-list" class="feature-list"></div>
+      </section>
+
+      <!-- LEFT: My space (por ahora solo se muestra/oculta, sin lógica interna) -->
+      <section
+        class="panel panel--myspace"
+        id="myspace-panel"
+        style="display:none;"
+      >
+        <div class="panel-header">
+          <div>
+            <div class="panel-title" data-i18n="myspace_title">My space</div>
+            <div class="panel-subtitle" data-i18n="myspace_subtitle">
+              Your features and comments
+            </div>
+          </div>
+        </div>
+        <div
+          id="me-info"
+          class="helper-text"
+          data-i18n="myspace_login_hint"
+        >
+          Log in to see your profile and content.
+        </div>
+        <!-- Más adelante aquí metemos la lógica de /features?owner=me y /comments?owner=me -->
+      </section>
+
+      <!-- RIGHT: Auth + crear feature -->
+      <section class="panel panel--account">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title" data-i18n="account_title">Account</div>
+            <div
+              class="panel-subtitle"
+              data-i18n="account_subtitle"
+            >
+              Sign up, log in and manage your content
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="tabs-auth">
+            <button
+              class="tab-auth active"
+              data-tab="login"
+              data-i18n="login_tab"
+            >
+              Login
+            </button>
+            <button
+              class="tab-auth"
+              data-tab="signup"
+              data-i18n="signup_tab"
+            >
+              Sign up
+            </button>
+          </div>
+
+          <!-- Login form -->
+          <form id="login-form" class="stack">
+            <div class="field">
+              <label
+                for="login-username"
+                data-i18n="login_username_label"
+              >
+                Email / username
+              </label>
+              <input
+                id="login-username"
+                type="text"
+                autocomplete="username"
+                required
+                data-i18n-placeholder="login_username_placeholder"
+              />
+            </div>
+            <div class="field">
+              <label
+                for="login-password"
+                data-i18n="login_password_label"
+              >
+                Password
+              </label>
+              <input
+                id="login-password"
+                type="password"
+                autocomplete="current-password"
+                required
+                data-i18n-placeholder="login_password_placeholder"
+              />
+            </div>
+            <button
+              type="submit"
+              class="btn"
+              data-i18n="login_btn"
+            >
+              Log in
+            </button>
+            <div class="helper-text" data-i18n="login_helper">
+              Calls POST /auth/login (OAuth2 password form).
+            </div>
+          </form>
+
+          <!-- Signup form -->
+          <form id="signup-form" class="stack">
+            <div class="field">
+              <label
+                for="signup-email"
+                data-i18n="signup_email_label"
+              >
+                Email
+              </label>
+              <input
+                id="signup-email"
+                type="email"
+                autocomplete="email"
+                required
+                data-i18n-placeholder="signup_email_placeholder"
+              />
+            </div>
+            <div class="field">
+              <label
+                for="signup-username"
+                data-i18n="signup_username_label"
+              >
+                Username (optional)
+              </label>
+              <input
+                id="signup-username"
+                type="text"
+                autocomplete="username"
+                data-i18n-placeholder="signup_username_placeholder"
+              />
+            </div>
+            <div class="stack-row">
+              <div class="field" style="flex:1;">
+                <label
+                  for="signup-password"
+                  data-i18n="signup_password_label"
+                >
+                  Password
+                </label>
+                <input
+                  id="signup-password"
+                  type="password"
+                  autocomplete="new-password"
+                  required
+                  data-i18n-placeholder="signup_password_placeholder"
+                />
+              </div>
+              <div class="field" style="flex:1;">
+                <label
+                  for="signup-password2"
+                  data-i18n="signup_repeat_label"
+                >
+                  Repeat password
+                </label>
+                <input
+                  id="signup-password2"
+                  type="password"
+                  autocomplete="new-password"
+                  required
+                  data-i18n-placeholder="signup_repeat_placeholder"
+                />
+              </div>
+            </div>
+            <button
+              type="submit"
+              class="btn"
+              data-i18n="signup_btn"
+            >
+              Create account
+            </button>
+            <div class="helper-text" data-i18n="signup_helper">
+              Calls POST /auth/register.
+            </div>
+          </form>
+
+          <hr class="divider" />
+
+          <div class="panel-header" style="margin-bottom:8px;">
+            <div>
+              <div
+                class="panel-title"
+                data-i18n="new_feature_title"
+              >
+                New feature
+              </div>
+              <div
+                class="panel-subtitle"
+                data-i18n="new_feature_subtitle"
+              >
+                Create features via POST/features
+              </div>
+            </div>
+          </div>
+
+          <form id="new-feature-form" class="stack">
+            <div class="field">
+              <label
+                for="feature-title"
+                data-i18n="feature_title_label"
+              >
+                Title
+              </label>
+              <input
+                id="feature-title"
+                type="text"
+                placeholder="Short, clear title"
+                required
+                data-i18n-placeholder="feature_title_placeholder"
+              />
+            </div>
+            <div class="field">
+              <label
+                for="feature-description"
+                data-i18n="feature_desc_label"
+              >
+                Description
+              </label>
+              <textarea
+                id="feature-description"
+                placeholder="Explain what you want to add or change"
+                required
+                data-i18n-placeholder="feature_desc_placeholder"
+              ></textarea>
+            </div>
+            <button
+              type="submit"
+              class="btn"
+              data-i18n="feature_submit_btn"
+            >
+              Submit feature
+            </button>
+            <div class="helper-text" data-i18n="feature_helper">
+              Requires authentication with Authorization: Bearer &lt;token&gt;.
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <div id="modal-backdrop" class="modal-backdrop">
+    <div class="modal" id="feature-modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">Feature detail</div>
+        <button class="modal-close" id="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="modal-content"></div>
+        <hr class="divider" />
+        <div id="modal-comments"></div>
+        <div
+          id="modal-new-comment"
+          class="stack"
+          style="margin-top:6px;"
+        ></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
