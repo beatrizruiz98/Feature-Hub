@@ -17,7 +17,12 @@ services:
       POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres-db:/var/lib/postgresql/data
+  frontend:
+    image: beatrizruiz981/nginx-front-featurehub:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - api
 
 volumes:
   postgres-db:
-
