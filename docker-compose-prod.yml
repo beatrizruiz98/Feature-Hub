@@ -1,13 +1,13 @@
 services:
   api:
-    image: beatrizruiz981/api-featurehub:latest 
+    image: beatrizruiz981/api-featurehub:1.1 
     restart: always
     depends_on:
       - db
     env_file: 
     - ".env"
-    ports:
-      - "192.168.1.130:8000:8000" # <IP:port_local>:<port_container>
+    # ports:
+    #   - "8000:8000" # <IP:port_local>:<port_container>
   db:
     image: postgres:16 # Añadir version para evitar problemas de compatibilidad
     restart: always
@@ -18,7 +18,7 @@ services:
     volumes:
       - postgres-db:/var/lib/postgresql/data
   frontend:
-    image: beatrizruiz981/nginx-front-featurehub:latest
+    image: beatrizruiz981/nginx-front-featurehub:1.1
     ports:
       - "80:80"
     depends_on:
