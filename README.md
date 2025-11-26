@@ -1,36 +1,50 @@
 # Feature Hub Project
 
-Plataforma para **proponer funcionalidades (“features”), debatirlas a través de comentarios y priorizarlas mediante likes**. Construida con **FastAPI**, **SQLModel**, **JWT**, **PostgreSQL** y **Alembic**.
+Featurehub es una aplicación basada en microservicios que expone una plataforma para **proponer funcionalidades (“features”), debatirlas a través de comentarios y priorizarlas mediante likes**. 
+
+Incluye:
+
+- API REST construida con **FastAPI**
+- Base de datos **PostgreSQL** con migraciones **Alembic**
+- Autenticación de usuarios basado en **OAuth2** y **JWT**.
+- Frontend estático **HTML/JS/CSS**
+- Reverse proxy **Nginx** para servir la app
+- Todas los servicios están **dockerizados** 
+- Despliegue completo mediante **Docker Compose**
 
 ---
 
+## 🏗️ Arquitectura
+
+![alt text](arq.png)
+
 ## Quickstart
+
+### 🚀 Tecnologías
+
+- FastAPI + SQLModel
+- PostgreSQL
+- Alembic (migraciones)
+- Argon2 (hashing)
+- OAuth2 + JWT
+- Docker & Docker Compose
+- Nginx
 
 ### Requisitos
 
-- **Python 3.11+**
-- **PostgreSQL** en ejecución (local o remoto)
-- **git** instalado
+- **Docker**
 
-### Instalación
+### Despliegue
 
+#### 1. Clonar el repositorio
 ```bash
-# Clonar el repositorio
-git clone https://github.com/<tu_usuario>/feature-hub-project.git
-cd feature-hub-project
-
-# Crear entorno virtual
-python -m venv venv
-# En Windows: venv\Scripts\activate
-source venv/bin/activate
-
-# Instalar dependencias
-pip install -r requirements.txt
+git clone https://github.com/beatrizruiz98/Feature-Hub
+cd Feature-Hub
 ```
 
-### Variables de entorno
+#### 2. Crear archivo .env
 
-Configura un archivo **.env** en la raíz del proyecto con los parámetros que espera `app/config.py`:
+Configura un archivo **.env** en la raíz del proyecto con los parámetros que espera la aplicación:
 
 ```env
 database_hostname=hostname
@@ -43,41 +57,58 @@ algorithm=algorithm
 access_token_expire_minutes=minutes
 ```
 
-### Migraciones y arranque
+#### 3. Levantar la app
 
+- Desarrollo 
 ```bash
-alembic upgrade head        # aplica la última migración
-uvicorn app.main:app --reload
-#o bien: fastapi dev app/main.py
+docker compose -f docker-compose-dev.yml up --build
 ```
+- Entorno productivo
+```bash
+docker compose -f docker-compose-prod.yml up
+```
+*Cuando se realicen cambios en las imagenes y se precise disponerlas en el entorno productivo se deberán etiquetar y subir a dockerhub.*
 
-Documentación API disponibles:
-
-- **Swagger UI:** http://localhost:8000/docs
-- **ReDoc:** http://localhost:8000/redoc
-
+### Migraciones
+```bash
+docker compose exec api alembic upgrade head
+docker compose exec api alembic revision -m "change"
+docker compose exec api alembic downgrade -1
+```
 ---
 
 ## Estructura del proyecto
 
 ```
-app/
-  main.py             # Configura FastAPI y el middleware CORS
-  routers/
-    features.py       # CRUD de features y consulta de likes
-    comments.py       # Gestión de comentarios en cada feature
-    likes.py          # Alta/baja de likes (dir=1 o dir=0)
-    auth.py           # Registro, login y perfil del usuario
-  models.py           # Tablas SQLModel: Users, Features, Likes, Comments
-  schemas.py          # Modelos Pydantic para requests/responses
-  database.py         # Sesión y engine de SQLModel
-  oauth2.py           # Helpers para JWT y dependencia `get_current_user`
-  utils.py            # Hashing/verificación con Argon2 (pwdlib)
-  config.py           # Carga de variables de entorno con pydantic-settings
-alembic/
-  env.py
-  versions/           # Migraciones versionadas
-requirements.txt
+backend/  
+  app/
+    main.py             # Configura FastAPI y el middleware CORS
+    routers/
+      features.py       # CRUD de features y consulta de likes
+      comments.py       # Gestión de comentarios en cada feature
+      likes.py          # Alta/baja de likes (dir=1 o dir=0)
+      auth.py           # Registro, login y perfil del usuario
+    models.py           # Tablas SQLModel: Users, Features, Likes, Comments
+    schemas.py          # Modelos Pydantic para requests/responses
+    database.py         # Sesión y engine de SQLModel
+    oauth2.py           # Helpers para JWT y dependencia `get_current_user`
+    utils.py            # Hashing/verificación con Argon2 (pwdlib)
+    config.py           # Carga de variables de entorno con pydantic-settings
+  alembic/
+    env.py
+    versions/           # Migraciones versionadas
+  requirements.txt
+  Dockerfile            # Instrucciones para crear imagen api
+nginx/ 
+  /front                # HTML, JS, CSS
+    index.html
+    /static
+      app.js
+      styles.css
+  featurehub.conf       # Configuración del servidor que sirve la app
+  nginx.conf            # Congiguración nginx
+docker-compose-dev.yml  # Despliegue en dev (servicios basados en build, comando fastapi dev, volumen para desarrollo)
+docker-compose-prod.yml # Despliegue production (servicios basados en image, sin volumen para desarrollo)     
 README.md
 ```
 
@@ -91,6 +122,7 @@ README.md
 - **Argon2/pwdlib:** hashing seguro de contraseñas.
 - **pydantic-settings:** centraliza la configuración desde `.env`.
 - **CORS middleware:** permite probar desde hosts locales predefinidos.
+- **Nginx** sirve la aplicación a través de un proxy inverso. Garantiza alto rendimiento y eficiencia. Fácil configuración.
 
 ---
 
@@ -117,18 +149,7 @@ Todas las rutas autenticadas requieren la cabecera:
 ```
 Authorization: Bearer <access_token>
 ```
-
----
-
-## Migraciones Alembic
-
-```bash
-alembic upgrade head        # aplica migraciones pendientes
-alembic revision -m "msg"   # crea una nueva migración
-alembic downgrade -1        # revierte la última migración
-```
-
-> En entornos productivos utiliza siempre **Alembic** en lugar de `SQLModel.metadata.create_all()`.
+*En el frontend no están disponibles las funcionalidades PUT /features, DELETE /features, DELETE /comments*
 
 ---
 
@@ -140,9 +161,12 @@ alembic downgrade -1        # revierte la última migración
 | `401 Unauthorized` | Token ausente o expirado | Repite el login y envía `Authorization: Bearer <token>` |
 | `404 Feature … was not found` | ID inexistente o eliminado por otro usuario | Comprueba que el recurso esté creado antes de invocar el endpoint |
 | Respuesta CORS bloqueada | Origen no contemplado en `origins` (app/main.py) | Añade el host al listado permitido |
+| Error de networking entre frontend y backend | Direcciones erróneas en featurehub.conf, Dockerfile (api) | Revisar redes `docker network inspect <red_docker>`, revisar peticiones entre servicios `tshark -i <interfaz_servicio> -f "tcp port <puerto_servicio>" -Y "http"`|
 
 ---
 
 ## Licencia
 
 **MIT © 2025 [Beatriz]**
+
+
