@@ -69,12 +69,6 @@ docker compose -f docker-compose-prod.yml up
 ```
 *Cuando se realicen cambios en las imagenes y se precise disponerlas en el entorno productivo se deberán etiquetar y subir a dockerhub.*
 
-### Migraciones
-```bash
-docker compose exec api alembic upgrade head
-docker compose exec api alembic revision -m "change"
-docker compose exec api alembic downgrade -1
-```
 ---
 
 ## Estructura del proyecto
