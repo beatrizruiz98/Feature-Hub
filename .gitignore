@@ -1,1 +1,5 @@
 .env
+backend/app/__pycache__
+backend/venv/
+backend/alembic.ini
+
