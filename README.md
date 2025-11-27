@@ -19,7 +19,7 @@ It includes:
 ![alt text](arq.png)
 
 
-### 🚀 Tecnologías
+### 🚀 Technology
 
 - FastAPI + SQLModel  
 - PostgreSQL  
