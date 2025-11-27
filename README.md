@@ -1,50 +1,49 @@
 # Feature Hub Project
 
-Featurehub es una aplicación basada en microservicios que expone una plataforma para **proponer funcionalidades (“features”), debatirlas a través de comentarios y priorizarlas mediante likes**. 
+Featurehub is a microservices-based application that provides a platform to **propose features, discuss them through comments, and prioritise them using likes**.
 
-Incluye:
+It includes:
 
-- API REST construida con **FastAPI**
-- Base de datos **PostgreSQL** con migraciones **Alembic**
-- Autenticación de usuarios basado en **OAuth2** y **JWT**.
-- Frontend estático **HTML/JS/CSS**
-- Reverse proxy **Nginx** para servir la app
-- Todas los servicios están **dockerizados** 
-- Despliegue completo mediante **Docker Compose**
+- REST API built with **FastAPI**
+- **PostgreSQL** database with **Alembic** migrations
+- User authentication based on **OAuth2** and **JWT**
+- Static **HTML/JS/CSS** frontend
+- **Nginx** reverse proxy to serve the app
+- All services are fully **dockerised**
+- Complete deployment via **Docker Compose**
 
 ---
 
-## 🏗️ Arquitectura
+## 🏗️ Architecture
 
 ![alt text](arq.png)
 
-## Quickstart
 
 ### 🚀 Tecnologías
 
-- FastAPI + SQLModel
-- PostgreSQL
-- Alembic (migraciones)
-- Argon2 (hashing)
-- OAuth2 + JWT
-- Docker & Docker Compose
-- Nginx
+- FastAPI + SQLModel  
+- PostgreSQL  
+- Alembic (migrations)  
+- Argon2 (password hashing)  
+- OAuth2 + JWT  
+- Docker & Docker Compose  
+- Nginx  
 
-### Requisitos
+### Requirements
 
 - **Docker**
 
-### Despliegue
+##  🔧 Deployment
 
-#### 1. Clonar el repositorio
+### 1. Clone the repository
 ```bash
 git clone https://github.com/beatrizruiz98/Feature-Hub
 cd Feature-Hub
 ```
 
-#### 2. Crear archivo .env
+### 2. Create the .env file
 
-Configura un archivo **.env** en la raíz del proyecto con los parámetros que espera la aplicación:
+Create a .env file in the project root with the parameters expected by the application:
 
 ```env
 database_hostname=hostname
@@ -57,109 +56,110 @@ algorithm=algorithm
 access_token_expire_minutes=minutes
 ```
 
-#### 3. Levantar la app
+### 3. Start the application
 
-- Desarrollo 
+- Development 
 ```bash
 docker compose -f docker-compose-dev.yml up --build
 ```
-- Entorno productivo
+- Production
 ```bash
 docker compose -f docker-compose-prod.yml up
 ```
-*Cuando se realicen cambios en las imagenes y se precise disponerlas en el entorno productivo se deberán etiquetar y subir a dockerhub.*
+*When updating images for production deployments, remember to tag and push them to Docker Hub.*
 
 ---
 
-## Estructura del proyecto
+## 📁 Project Structure
 
 ```
 backend/  
   app/
-    main.py             # Configura FastAPI y el middleware CORS
+    main.py             # Configures FastAPI and CORS middleware
     routers/
-      features.py       # CRUD de features y consulta de likes
-      comments.py       # Gestión de comentarios en cada feature
-      likes.py          # Alta/baja de likes (dir=1 o dir=0)
-      auth.py           # Registro, login y perfil del usuario
-    models.py           # Tablas SQLModel: Users, Features, Likes, Comments
-    schemas.py          # Modelos Pydantic para requests/responses
-    database.py         # Sesión y engine de SQLModel
-    oauth2.py           # Helpers para JWT y dependencia `get_current_user`
-    utils.py            # Hashing/verificación con Argon2 (pwdlib)
-    config.py           # Carga de variables de entorno con pydantic-settings
+      features.py       # CRUD for features and like queries
+      comments.py       # Comment management for each feature
+      likes.py          # Like/unlike actions (dir=1 or dir=0)
+      auth.py           # Registration, login and user profile
+    models.py           # SQLModel tables: Users, Features, Likes, Comments
+    schemas.py          # Pydantic request/response models
+    database.py         # SQLModel session and engine
+    oauth2.py           # JWT helpers + get_current_user dependency
+    utils.py            # Argon2 hashing/verification (pwdlib)
+    config.py           # Loads environment variables via pydantic-settings
   alembic/
     env.py
-    versions/           # Migraciones versionadas
+    versions/           # Versioned migrations
   requirements.txt
-  Dockerfile            # Instrucciones para crear imagen api
+  Dockerfile            # API image build instructions
 nginx/ 
   /front                # HTML, JS, CSS
     index.html
     /static
       app.js
       styles.css
-  featurehub.conf       # Configuración del servidor que sirve la app
-  nginx.conf            # Congiguración nginx
-docker-compose-dev.yml  # Despliegue en dev (servicios basados en build, comando fastapi dev, volumen para desarrollo)
-docker-compose-prod.yml # Despliegue production (servicios basados en image, sin volumen para desarrollo)     
+  featurehub.conf       # Nginx config for serving the app
+  nginx.conf            # Global Nginx configuration  
+docker-compose-dev.yml  # Dev deployment (build-based + hot reload)
+docker-compose-prod.yml # Production deployment (image-based)
 README.md
 ```
 
 ---
 
-## Stack y decisiones técnicas
+## 🧠 Tech Stack & Decisions
 
-- **FastAPI + SQLModel:** CRUD tipado, validación automática y compatibilidad con SQLAlchemy.
-- **PostgreSQL + Alembic:** persistencia relacional y migraciones reproducibles.
-- **OAuth2 + JWT:** autenticación basada en `password grant`.
-- **Argon2/pwdlib:** hashing seguro de contraseñas.
-- **pydantic-settings:** centraliza la configuración desde `.env`.
-- **CORS middleware:** permite probar desde hosts locales predefinidos.
-- **Nginx** sirve la aplicación a través de un proxy inverso. Garantiza alto rendimiento y eficiencia. Fácil configuración.
+- **FastAPI + SQLModel:** CRUD, automatic validation, SQLAlchemy-compatible
+- **PostgreSQL + Alembic:** relational persistence and reproducible migrations
+- **OAuth2 + JWT:** authentication based on the `password grant`
+- **Argon2/pwdlib:** strong password hashing
+- **pydantic-settings:** centralised `.env` configuration
+- **CORS middleware:** allows testing from predefined local hosts
+- **Nginx:** serves the app and the API through a reverse proxy for high efficiency
 
 ---
 
-## Endpoints principales
+## 📡 Main Endpoints
 
-| Método | Ruta                | Descripción                                                   | Auth |
+| Method | Path                | Description                                                   | Auth |
 |:-----:|---------------------|---------------------------------------------------------------|:----:|
-| **POST**   | `/auth/register`    | Registrar usuario nuevo                                      | ❌   |
-| **POST**   | `/auth/login`       | Obtener token JWT (OAuth2PasswordRequestForm)                | ❌   |
-| **GET**    | `/auth/me`          | Perfil del usuario autenticado                               | ✅   |
-| **GET**    | `/features`         | Listar features (paginación, búsqueda y filtros por autor)   | ✅   |
-| **GET**    | `/features/{id}`    | Obtener resumen de un feature con conteo de likes            | ✅   |
-| **POST**   | `/features`         | Crear feature propio                                         | ✅   |
-| **PUT**    | `/features/{id}`    | Actualizar un feature del usuario                            | ✅   |
-| **DELETE** | `/features/{id}`    | Eliminar un feature propio                                   | ✅   |
-| **GET** | `/features/{id}/comments`    | Obtener los comentarios de una feature                                   | ✅   |
-| **POST**   | `/likes`            | Agregar (`dir=1`) o quitar (`dir=0`) un like sobre un feature| ✅   |
-| **GET**    | `/comments/{id}`    | Consultar un comentario puntual                              | ✅   |
-| **POST**   | `/comments`         | Publicar comentario asociado a un feature                    | ✅   |
-| **DELETE** | `/comments/{id}`    | Eliminar comentario propio                                   | ✅   |
+| **POST**   | `/auth/register`    | Register a new user                                    | ❌   |
+| **POST**   | `/auth/login`       | Obtain JWT token (OAuth2PasswordRequestForm)               | ❌   |
+| **GET**    | `/auth/me`          | Authenticated user profile                            | ✅   |
+| **GET**    | `/features`         | List features (pagination, search, author filters)  | ✅   |
+| **GET**    | `/features/{id}`    | Get feature summary with like count           | ✅   |
+| **POST**   | `/features`         | Create own feature                                      | ✅   |
+| **PUT**    | `/features/{id}`    | Update user’s feature                            | ✅   |
+| **DELETE** | `/features/{id}`    | Update user’s feature                                   | ✅   |
+| **GET** | `/features/{id}/comments`    | Get comments for a feature                                 | ✅   |
+| **POST**   | `/likes`            | Add (dir=1) or remove (dir=0) a like| ✅   |
+| **GET**    | `/comments/{id}`    | Retrieve a specific comment                              | ✅   |
+| **POST**   | `/comments`         | Publish a comment associated with a feature                   | ✅   |
+| **DELETE** | `/comments/{id}`    | Delete own comment                                   | ✅   |
 
-Todas las rutas autenticadas requieren la cabecera:
+All authenticated routes require:
 
 ```
 Authorization: Bearer <access_token>
 ```
-*En el frontend no están disponibles las funcionalidades PUT /features, DELETE /features, DELETE /comments*
+*PUT /features, DELETE /features and DELETE /comments are not available in the frontend.*
 
 ---
 
-## Troubleshooting
+## 🛠️ Troubleshooting
 
-| Problema | Causa probable | Solución |
-|----------|----------------|----------|
-| Error conectando a la DB | Variables `.env` erróneas o Postgres caído | Verifica credenciales y que el servicio acepte conexiones |
-| `401 Unauthorized` | Token ausente o expirado | Repite el login y envía `Authorization: Bearer <token>` |
-| `404 Feature … was not found` | ID inexistente o eliminado por otro usuario | Comprueba que el recurso esté creado antes de invocar el endpoint |
-| Respuesta CORS bloqueada | Origen no contemplado en `origins` (app/main.py) | Añade el host al listado permitido |
-| Error de networking entre frontend y backend | Direcciones erróneas en featurehub.conf, Dockerfile (api) | Revisar redes `docker network inspect <red_docker>`, revisar peticiones entre servicios `tshark -i <interfaz_servicio> -f "tcp port <puerto_servicio>" -Y "http"`|
+| Issue | Likely Cause | Solution |
+|-------|--------------|----------|
+| Error connecting to DB | Incorrect `.env` variables or PostgreSQL down | Verify credentials and ensure the service is running |
+| `401 Unauthorized` | Missing or expired token | Log in again and send `Authorization: Bearer <token>` |
+| `404 Feature … was not found` | Invalid ID or deleted by another user | Make sure the resource exists before making the request |
+| CORS blocked response | Origin not included in `origins` (app/main.py) | Add the host to the allowed origins |
+| Networking issues between frontend & backend | Incorrect addresses in Nginx or API config | Inspect Docker networks using `docker network inspect <network>` and check traffic with `tshark` |
+
 
 ---
 
-## Licencia
+## 📜 License
 
 **MIT © 2025 [Beatriz]**
 
