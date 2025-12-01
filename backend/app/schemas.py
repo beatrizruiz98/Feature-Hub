@@ -14,7 +14,6 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     """Payload esperado cuando se crea un usuario a través de la API."""
-    id: Optional[int] = None
     password: str
     
 
@@ -28,7 +27,6 @@ class Like(BaseModel):
 class FeatureBase(BaseModel):
     """Campos básicos que definen el contenido de un feature."""
     
-    id: Optional[int] = None
     title: str
     description: str
     published: Optional[bool] = True
