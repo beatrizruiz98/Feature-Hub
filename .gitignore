@@ -3,4 +3,5 @@ backend/app/__pycache__
 backend/venv/
 .venv/
 backend/alembic.ini
-
+backend/tests/__pycache__
+pytest.ini

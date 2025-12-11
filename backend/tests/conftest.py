@@ -27,8 +27,28 @@ def client(session):
     # Sobrescribe la dependencia de get_session para usar la sesión de pruebas
     def override_get_session():
         yield session
-    # Funcion de sobrescritura de la dependencia 
+    # Funcion de sobrescritura de la dependencia (función de fastapi por defecto)
+    # Sobreescribe get_session con test_session en todo el código
+    """To override a dependency for testing, you put as a key the original dependency (a function), and as the value, your dependency override (another function)."""
     app.dependency_overrides[get_session] = override_get_session
+    """You can use the TestClient class to test FastAPI applications without creating an actual HTTP and socket connection, just communicating directly with the FastAPI code."""
     with TestClient(app) as test_client:
         yield test_client
+    # Limpia las dependencias sobrescritas después de las pruebas
     app.dependency_overrides.clear()
+
+@pytest.fixture(scope="session")
+def user(client):
+    """Crea un usuario de prueba en la base de datos."""
+    user_data = {
+        "name": "Test User",
+        "email": "test@test.com",
+        "password": "password123"
+    }
+    res = client.post("/auth/register/", json=user_data)
+    new_user = res.json()
+    new_user['password'] = user_data['password']
+    assert res.status_code == 201
+    return new_user
+
+

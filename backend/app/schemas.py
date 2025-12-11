@@ -7,6 +7,7 @@ from pydantic import BaseModel, EmailStr, conint
 class UserBase(BaseModel):
     """Campos comunes compartidos por varias respuestas relacionadas con usuarios."""
     
+    id: Optional[int] = None
     name: str
     email: EmailStr
     created_at: Optional[datetime] = None
