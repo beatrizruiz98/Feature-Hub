@@ -81,7 +81,7 @@ def get_features(
             "user_id": f.Features.user_id,
             "title": f.Features.title,
             "description": f.Features.description,
-            "published": f.Features.published,
+            #"published": f.Features.published,
             "created_at": f.Features.created_at,
             "updated_at": f.Features.updated_at,
             "likes": f.likes,
@@ -128,7 +128,7 @@ def get_feature(
         user_id=feature.Features.user_id,
         title=feature.Features.title,
         description=feature.Features.description,
-        published=feature.Features.published,
+        #published=feature.Features.published,
         created_at=feature.Features.created_at,
         updated_at=feature.Features.updated_at,
         likes=feature.likes,
@@ -180,7 +180,7 @@ def update_feature(
     # Actualizamos los campos manualmente para mantener el control sobre cada atributo.
     feature.title = payload.title or feature.title
     feature.description = payload.description or feature.description
-    feature.published = payload.published or feature.published
+    #feature.published = payload.published or feature.published
     feature.updated_at = datetime.utcnow()
 
     db.add(feature)      # opcional, pero recomendable para dejar constancia del merge.

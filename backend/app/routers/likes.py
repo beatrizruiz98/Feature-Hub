@@ -32,7 +32,7 @@ def like(payload: Like,
     if payload.dir == 1:
         if like_query:
             # Si el voto ya existe y se intenta crear otro, lanzamos error
-            raise HTTPException(status_code=409, detail=f"User {new_like.user_id} already liked for feature {new_like.feature_id}")
+            raise HTTPException(status_code=409, detail=f"User {new_like.user_id} already liked the feature {new_like.feature_id}")
         db.add(new_like)
         db.commit()
         db.refresh(new_like)

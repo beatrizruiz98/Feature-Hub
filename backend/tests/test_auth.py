@@ -5,6 +5,7 @@ from app.oauth2 import SECRET_KEY, ALGORITHM
 import jwt
 import pytest
 
+
 # def test_root(client):
 #     """Prueba el endpoint de salud raíz."""
 #     response = client.get("/")

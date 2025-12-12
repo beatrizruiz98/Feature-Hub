@@ -30,14 +30,14 @@ class FeatureBase(BaseModel):
     
     title: str
     description: str
-    published: Optional[bool] = True
+    #published: Optional[bool] = True
 
 class FeatureUpdate(BaseModel):
     """Campos básicos que definen el contenido de un feature."""
 
     title: Optional[str] = None
     description: Optional[str] = None
-    published: Optional[bool] = True
+    #published: Optional[bool] = True
 
 class FeatureOut(FeatureBase):
     """Feature que se devuelve la información actualizada, enriquecido con información del autor."""
@@ -52,7 +52,7 @@ class FeatureSummary(BaseModel):
     user_id: int
     title: str
     description: str
-    published: bool
+    #published: bool
     created_at: datetime | None = None
     updated_at: datetime | None = None
     likes: int
