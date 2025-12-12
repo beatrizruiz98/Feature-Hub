@@ -55,6 +55,7 @@ def test_post_a_feature_successful(authorized_client, title, description, status
 @pytest.mark.parametrize("title, description ,status_code", [ 
     (None, "Test description", 422),  # Título vacío
     ("Test Feature Title", None, 422),  # Descripción vacía
+    (None, None, 422)  # Ambos vacíos
 ]) 
 def test_post_a_feature_invalid_schema(authorized_client, title, description, status_code):
     """Prueba la creación de feature con cliente autorizado."""

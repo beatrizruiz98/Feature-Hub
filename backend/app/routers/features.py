@@ -240,7 +240,6 @@ def get_comments(
         }
         for c in comments
     ]
-    print(data)
     return {
         "meta": {"total": len(data)},
         "data": data

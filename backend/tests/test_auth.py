@@ -51,3 +51,16 @@ def test_login_failed(client, email, password, status_code):
     res = client.post("/auth/login/" , 
                       data={"username": email, "password": password})
     assert res.status_code == status_code
+
+def test_get_user_profile_successful(authorized_client, user):
+    """Prueba el endpoint de perfil de usuario con cliente autorizado."""
+    res = authorized_client.get("/auth/me/")
+    current_user = schemas.UserBase(**res.json())
+    assert res.status_code == 200
+    assert current_user.id == user['id']
+    assert current_user.email == user['email']
+
+def test_get_user_profile_unauthorized(client):
+    """Prueba el endpoint de perfil de usuario con cliente no autorizado."""
+    res = client.get("/auth/me/")
+    assert res.status_code == 401

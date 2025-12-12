@@ -113,4 +113,34 @@ def add_features(user, user2, session):
         session.refresh(feature)
     return sample
 
+@pytest.fixture
+def add_comments(user, user2, add_features, session):
+    """Agrega comentarios de prueba a las features existentes."""
+    from app.models import Comments
+    comment_sample = [
+        {
+            "body": "This is a test comment",
+            "feature_id": add_features[0].id,
+            "user_id": user['id']
+        },
+        {
+            "body": "This is another test comment",
+            "feature_id": add_features[0].id,
+            "user_id": user2['id']
+        },
+        {
+            "body": "This is a comment for the second feature",
+            "feature_id": add_features[1].id,
+            "user_id": user2['id']
+        }
+    ]
+    def create_comment_model(comment):
+        return Comments(**comment)
+    sample = list(map(create_comment_model, comment_sample))
+    session.add_all(sample)
+    session.commit()
+    for comment in sample:
+        session.refresh(comment)
+    return sample
+
 
