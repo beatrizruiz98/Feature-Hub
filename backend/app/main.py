@@ -30,7 +30,8 @@ app = FastAPI(
 origins = [
     "http://192.168.1.128",
     "http://localhost",
-    "http://192.168.1.46"
+    "http://192.168.1.46",
+    "http://192.168.1.190"
 ]
 
 # Middleware encargado de la negociación CORS (métodos, headers, cookies, etc.).

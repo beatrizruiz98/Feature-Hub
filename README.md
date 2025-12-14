@@ -21,7 +21,8 @@ It includes:
 
 ### 🚀 Technology
 
-- FastAPI + SQLModel  
+- FastAPI + SQLModel 
+- Pytest 
 - PostgreSQL  
 - Alembic (migrations)  
 - Argon2 (password hashing)  
@@ -46,14 +47,14 @@ cd Feature-Hub
 Create a .env file in the project root with the parameters expected by the application:
 
 ```env
-database_hostname=hostname
-database_port=5432
-database_username=username
-database_password=password
-database_name=database_name
-secret_key=secret_key
-algorithm=algorithm
-access_token_expire_minutes=minutes
+DB_HOSTNAME=hostname
+DB_PORT=5432
+DB_USERNAME=username
+DB_PASSWORD=password
+DB_NAME=database_name
+SECRET_KEY=secret_key
+ALGORITHM=algorithm
+ACCESS_TOKEN_EXPIRE_MINUTES=minutes
 ```
 
 ### 3. Start the application
@@ -90,6 +91,12 @@ backend/
   alembic/
     env.py
     versions/           # Versioned migrations
+  tests/
+    conftest.py
+    test_auth.py
+    test_comments.py
+    test_features.py
+    test_like.py
   requirements.txt
   Dockerfile            # API image build instructions
 nginx/ 
@@ -110,6 +117,7 @@ README.md
 ## 🧠 Tech Stack & Decisions
 
 - **FastAPI + SQLModel:** CRUD, automatic validation, SQLAlchemy-compatible
+- **Pytest:** Endpoints functional testing
 - **PostgreSQL + Alembic:** relational persistence and reproducible migrations
 - **OAuth2 + JWT:** authentication based on the `password grant`
 - **Argon2/pwdlib:** strong password hashing
