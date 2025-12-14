@@ -15,7 +15,7 @@ class Settings(BaseSettings):
 
     class Config:
         # Indica a Pydantic qué archivo revisar si las variables no vienen del entorno.
-        env_file = ".env"  # Le indico de donde coger las variables
+        env_file = "./.env"  # Le indico de donde coger las variables
 
 
 # Instancia única que se importará desde cualquier módulo que necesite configuración.

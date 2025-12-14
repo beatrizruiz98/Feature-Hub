@@ -8,8 +8,8 @@ services:
       - db
     env_file: 
     - ".env"
-    ports:
-      - "8000:5000" # <port_local>:<port_container>
+    # ports:
+    #   - "8000:5000" # <port_local>:<port_container>
     # command: fastapi dev --host 0.0.0.0 --port 8000
   db:
     image: postgres:16 # Añadir version para evitar problemas de compatibilidad

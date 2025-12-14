@@ -1,6 +1,6 @@
 services:
   api:
-    image: beatrizruiz981/api-featurehub:1.1 
+    image: beatrizruiz981/api-featurehub:1.2 
     restart: always
     depends_on:
       - db
